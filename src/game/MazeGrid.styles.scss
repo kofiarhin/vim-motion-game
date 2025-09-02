@@ -4,14 +4,14 @@
 /* Cell size driven by CSS variable for viewport fit */
 $cell-size: var(--cell-size);
 $board-bg: #0e0f12;
-$frame:    #171a21;
-$line:     #1f2530;
+$frame: #171a21;
+$line: #1f2530;
 
-$light:  #ffffff;   /* light path squares (pure white) */
-$dark:   #000000;   /* dark path squares (pure black for checker) */
-$wall:   #0b0d11;   /* walls */
-$goal:   #ef4444;   /* exit accent (red) */
-$player: #4caf50;   /* player fill */
+$light: #ffffff; /* light path squares (pure white) */
+$dark: #000000; /* dark path squares (pure black for checker) */
+$wall: #1a0a0a; /* walls */
+$goal: #e43838; /* exit accent (red) */
+$player: #4caf50; /* player fill */
 
 /* Framed grid container using CSS Grid (existing structure) */
 .MazeGrid {
@@ -31,16 +31,16 @@ $player: #4caf50;   /* player fill */
   background: $board-bg;
   border: 2px solid $frame;
   border-radius: 8px;
-  box-shadow: 0 12px 36px rgba(0,0,0,.35);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
 
   /* Draw the checkerboard behind transparent path cells */
   background-image: conic-gradient(
-      from 90deg,
-      $light 25%,
-      $dark 0 50%,
-      $light 0 75%,
-      $dark 0
-    );
+    from 90deg,
+    $light 25%,
+    $dark 0 50%,
+    $light 0 75%,
+    $dark 0
+  );
   background-size: calc(#{$cell-size} * 2) calc(#{$cell-size} * 2);
   background-origin: content-box;
   background-clip: content-box; /* keep pattern inside the board frame */
@@ -69,7 +69,7 @@ $player: #4caf50;   /* player fill */
 /* Exit styling (works on light/dark squares) */
 .goal {
   background: $goal !important; /* solid red fill */
-  box-shadow: inset 0 0 0 2px lighten($goal, 10%), 0 0 12px rgba($goal,.35);
+  box-shadow: inset 0 0 0 2px lighten($goal, 10%), 0 0 12px rgba($goal, 0.35);
   position: relative;
 }
 .goal::after {
@@ -77,14 +77,23 @@ $player: #4caf50;   /* player fill */
   position: absolute;
   inset: 25%;
   border-radius: 2px;
-  background: rgba($goal,.22);
+  background: rgba($goal, 0.22);
 }
 
 /* Player pulse (infinite) */
 @keyframes playerPulse {
-  0%   { transform: scale(1);    box-shadow: inset 0 0 0 2px #0b0, 0 0 0 0 rgba($player,.35); }
-  50%  { transform: scale(0.96); box-shadow: inset 0 0 0 2px #0b0, 0 0 14px 8px rgba($player,.18); }
-  100% { transform: scale(1);    box-shadow: inset 0 0 0 2px #0b0, 0 0 0 0 rgba($player,0); }
+  0% {
+    transform: scale(1);
+    box-shadow: inset 0 0 0 2px #0b0, 0 0 0 0 rgba($player, 0.35);
+  }
+  50% {
+    transform: scale(0.96);
+    box-shadow: inset 0 0 0 2px #0b0, 0 0 14px 8px rgba($player, 0.18);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: inset 0 0 0 2px #0b0, 0 0 0 0 rgba($player, 0);
+  }
 }
 .player {
   background: $player !important;
@@ -94,21 +103,40 @@ $player: #4caf50;   /* player fill */
 }
 
 /* Accessibility */
-@media (prefers-reduced-motion: reduce) { .player { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .player {
+    animation: none;
+  }
+}
 /* Keep fixed large cells; no mobile downscale to maintain clarity */
 
 /* High-contrast accessibility hints */
 @media (forced-colors: active) {
-  .player, .goal { outline: 2px solid Highlight; outline-offset: -2px; }
+  .player,
+  .goal {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
 }
 
 /* Success animation: quick burst when player reaches exit */
 @keyframes winBurst {
-  0%   { transform: scale(0.6); opacity: 0.6; }
-  80%  { transform: scale(1.8); opacity: 0.15; }
-  100% { transform: scale(2);   opacity: 0; }
+  0% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+  80% {
+    transform: scale(1.8);
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
-.player.goal { z-index: 1; }
+.player.goal {
+  z-index: 1;
+}
 .player.goal::before,
 .player.goal::after {
   content: "";
@@ -116,14 +144,16 @@ $player: #4caf50;   /* player fill */
   inset: 0;
   border-radius: 4px;
   pointer-events: none;
-  box-shadow: 0 0 0 2px rgba($goal, .55);
+  box-shadow: 0 0 0 2px rgba($goal, 0.55);
   animation: winBurst 220ms ease-out forwards;
 }
 .player.goal::after {
   animation-delay: 40ms;
-  box-shadow: 0 0 0 2px rgba($goal, .35);
+  box-shadow: 0 0 0 2px rgba($goal, 0.35);
 }
 @media (prefers-reduced-motion: reduce) {
   .player.goal::before,
-  .player.goal::after { animation: none; }
+  .player.goal::after {
+    animation: none;
+  }
 }

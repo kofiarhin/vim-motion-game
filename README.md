@@ -2,6 +2,10 @@
 
 A small, keyboard-driven maze game built with React 18 and Vite. Move using Vim-style keys, race the timer, and reach the red exit.
 
+## Live Demo
+
+Play the game live at [https://vim-motion-game.vercel.app/](https://vim-motion-game.vercel.app/)
+
 ## Features
 
 - Keyboard movement with Vim keys: `h` `j` `k` `l`

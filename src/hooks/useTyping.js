@@ -103,10 +103,10 @@ const useTyping = () => {
     if (!passage) return
     const { key } = e
 
-    // If game over, any key restarts (do not type with the same key)
-    if (timeUp) {
+    // If game ended (time or success), any key starts a new game (next passage)
+    if (timeUp || done) {
       e.preventDefault()
-      restart()
+      next()
       return
     }
 

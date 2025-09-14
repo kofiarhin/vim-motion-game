@@ -90,6 +90,10 @@ const Game = () => {
             <div className="overlay" aria-live="polite">
               <strong>GAME OVER — press any key to restart</strong>
             </div>
+          ) : status === 'Complete' ? (
+            <div className="overlay" aria-live="polite">
+              <strong>SUCCESS — press any key for next</strong>
+            </div>
           ) : (
             <div className="passage">
               {sourceChars.map((ch, i) => {

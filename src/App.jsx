@@ -12,19 +12,18 @@ README (short):
   - Exit: +10 score and auto-new maze; timer continues if Running
 */
 
-import React from 'react'
-import MazeGame from './game/MazeGame'
-import './App.styles.scss'
+import React from "react";
+import "./App.styles.scss";
+import Game from "./components/Game.jsx";
 
 export default function App() {
   return (
     <div className="App">
-      <MazeGame />
+      <Game />
     </div>
-  )
+  );
 }
 
 if (import.meta.env.DEV) {
-  import('./dev/checks.dev.js').then(({ runDevChecks }) => runDevChecks?.())
+  import("./dev/checks.dev.js").then(({ runDevChecks }) => runDevChecks?.());
 }
-

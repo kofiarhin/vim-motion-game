@@ -1,0 +1,26 @@
+.stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.metric {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 110px;
+}
+
+.label {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.value {
+  color: #e5e7eb;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+

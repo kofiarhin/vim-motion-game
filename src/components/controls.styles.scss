@@ -1,0 +1,21 @@
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid #314154;
+  background: #0b1728;
+  color: #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+}
+.btn:hover { border-color: #3b82f6; color: #bfdbfe; }
+.btn.primary { background: #0d1b2a; border-color: #3b82f6; }
+.btn.primary:hover { background: #0f2540; }
+

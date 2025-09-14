@@ -5,9 +5,7 @@ const pickRandom = (arr, except) => {
   if (!arr?.length) return ''
   if (arr.length === 1) return arr[0]
   let p = arr[Math.floor(Math.random() * arr.length)]
-  if (except && p === except) {
-    p = arr[(arr.indexOf(p) + 1) % arr.length]
-  }
+  if (except && p === except) p = arr[(arr.indexOf(p) + 1) % arr.length]
   return p
 }
 
@@ -22,9 +20,8 @@ const formatQ = (q) => {
 
 const useTyping = () => {
   const [passage, setPassage] = useState('')
-  const [chars, setChars] = useState([]) // user-entered chars per position
-  const [cursor, setCursor] = useState(0)
-  const [mode, setMode] = useState('TYPING') // single simple mode
+  const [chars, setChars] = useState([])
+  const [mode] = useState('TYPING')
   const [totalKeystrokes, setTotalKeystrokes] = useState(0)
   const [correctKeystrokes, setCorrectKeystrokes] = useState(0)
   const [startedAt, setStartedAt] = useState(null)
@@ -33,9 +30,6 @@ const useTyping = () => {
   const [timeUp, setTimeUp] = useState(false)
 
   const timerRef = useRef(null)
-
-  const len = passage.length
-  const clamp = useCallback((n) => Math.max(0, Math.min(n, Math.max(0, len))), [len])
   const LIMIT_MS = 60000
 
   // Initialize passage on mount, honoring ?q= override
@@ -45,11 +39,9 @@ const useTyping = () => {
     setPassage(initial)
   }, [])
 
-  // When passage changes, reset state
+  // Reset state on passage change
   useEffect(() => {
     setChars(Array.from({ length: passage.length }, () => ''))
-    setCursor(0)
-    setMode('TYPING')
     setTotalKeystrokes(0)
     setCorrectKeystrokes(0)
     setStartedAt(null)
@@ -58,7 +50,24 @@ const useTyping = () => {
     setTimeUp(false)
   }, [passage])
 
-  // Tick elapsed time while typing
+  // Derived counts
+  const typedCount = useMemo(() => {
+    let i = 0
+    const max = Math.min(chars.length, passage.length)
+    while (i < max && chars[i] === passage[i]) i++
+    return i
+  }, [chars, passage])
+  const progress = useMemo(() => (passage ? typedCount / passage.length : 0), [typedCount, passage])
+
+  // Caret is the next required index
+  const cursor = typedCount
+
+  // Done when all characters are correct
+  useEffect(() => {
+    setDone(passage.length > 0 && typedCount >= passage.length)
+  }, [typedCount, passage.length])
+
+  // Timer tick
   useEffect(() => {
     if (!startedAt || done || timeUp) return
     timerRef.current && clearInterval(timerRef.current)
@@ -75,29 +84,8 @@ const useTyping = () => {
     return () => timerRef.current && clearInterval(timerRef.current)
   }, [startedAt, done, timeUp])
 
-  const typedCount = useMemo(() => {
-    // Count up to first empty slot; supports sequential typing UX
-    let i = 0
-    while (i < chars.length && chars[i] !== '') i++
-    return i
-  }, [chars])
-  const correctChars = useMemo(() => {
-    let c = 0
-    for (let i = 0; i < chars.length; i++) {
-      if (chars[i] && chars[i] === passage[i]) c++
-    }
-    return c
-  }, [chars, passage])
-  const progress = useMemo(() => passage ? typedCount / passage.length : 0, [typedCount, passage])
-
-  useEffect(() => {
-    setDone(passage.length > 0 && typedCount >= passage.length)
-  }, [typedCount, passage.length])
-
   const restart = useCallback(() => {
     setChars(Array.from({ length: passage.length }, () => ''))
-    setCursor(0)
-    setMode('TYPING')
     setTotalKeystrokes(0)
     setCorrectKeystrokes(0)
     setStartedAt(null)
@@ -115,11 +103,17 @@ const useTyping = () => {
     if (!passage) return
     const { key } = e
 
+    // If game over, any key restarts (do not type with the same key)
+    if (timeUp) {
+      e.preventDefault()
+      restart()
+      return
+    }
+
     // Start on first key; swallow non-printable first key
     if (!startedAt) {
       if (key.length === 1) {
         setStartedAt(Date.now())
-        // continue to printable handling below
       } else {
         setStartedAt(Date.now())
         e.preventDefault()
@@ -140,13 +134,21 @@ const useTyping = () => {
     }
     if (key === 'Backspace') {
       e.preventDefault()
-      if (cursor <= 0) return
-      setChars((arr) => {
-        const nextArr = arr.slice()
-        nextArr[cursor - 1] = ''
-        return nextArr
-      })
-      setCursor((c) => clamp(c - 1))
+      const c = cursor
+      // Clear wrong char at cursor, else clear previous committed char
+      if (chars[c] && chars[c] !== passage[c]) {
+        setChars((arr) => {
+          const nextArr = arr.slice()
+          nextArr[c] = ''
+          return nextArr
+        })
+      } else if (c > 0) {
+        setChars((arr) => {
+          const nextArr = arr.slice()
+          nextArr[c - 1] = ''
+          return nextArr
+        })
+      }
       return
     }
 
@@ -154,21 +156,23 @@ const useTyping = () => {
 
     if (key.length === 1) {
       e.preventDefault()
-      const expected = passage[cursor]
+      const c = cursor
+      const expected = passage[c]
+      if (!expected) return
       const isCorrect = key === expected
       setChars((arr) => {
         const nextArr = arr.slice()
-        nextArr[cursor] = key
+        nextArr[c] = key
         return nextArr
       })
-      setCursor((c) => clamp(c + 1))
       setTotalKeystrokes((n) => n + 1)
       if (isCorrect) setCorrectKeystrokes((n) => n + 1)
       return
     }
-  }, [passage, cursor, clamp, startedAt, done, timeUp, next, restart])
+  }, [passage, chars, cursor, startedAt, done, timeUp, next, restart])
 
   const elapsedMinutes = useMemo(() => (elapsedMs || 0) / 60000, [elapsedMs])
+  const correctChars = useMemo(() => typedCount, [typedCount])
   const wpm = useMemo(() => {
     if (!startedAt || elapsedMinutes <= 0) return 0
     return (correctChars / 5) / elapsedMinutes
@@ -192,20 +196,19 @@ const useTyping = () => {
 
   return {
     passage,
-    // user input state
     chars,
     cursor,
     mode,
     progress,
-    // metrics
     correctChars,
     totalKeystrokes,
     wpm,
     accuracy,
     elapsedMs,
     status,
+    started: !!startedAt,
     remainingMs,
-    // actions
+    timeUp,
     restart,
     next,
     onKeyDown,
@@ -213,4 +216,3 @@ const useTyping = () => {
 }
 
 export default useTyping
-

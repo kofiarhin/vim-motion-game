@@ -49,6 +49,16 @@
   border: 1px solid #27324a; /* muted border */
 }
 
+.overlay {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  font-weight: 700;
+  font-size: clamp(24px, 4vw, 36px);
+  color: #e2e8f0;
+  text-align: center;
+}
+
 .passage {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: clamp(18px, 2.4vw, 22px);

@@ -16,6 +16,8 @@ const Game = () => {
     elapsedMs,
     status,
     remainingMs,
+    started,
+    timeUp,
     restart,
     next,
     onKeyDown,
@@ -80,25 +82,35 @@ const Game = () => {
           onKeyDown={onKeyDown}
           onClick={() => surfaceRef.current?.focus()}
         >
-          <div className="passage">
-            {sourceChars.map((ch, i) => {
-              const typedCh = chars[i]
-              const isTyped = typedCh !== ''
-              const isCorrect = isTyped && typedCh === ch
-              const isCaret = i === cursor
-              const cls = [
-                'char',
-                isCaret ? 'caret' : '',
-                isTyped ? (isCorrect ? 'typedCorrect' : 'typedWrong') : 'untouched',
-                ch === ' ' ? 'space' : '',
-              ].filter(Boolean).join(' ')
-              return (
-                <span key={i} className={cls} aria-hidden="true">
-                  {ch === ' ' ? '\u00A0' : ch}
-                </span>
-              )
-            })}
-          </div>
+          {!started ? (
+            <div className="overlay" aria-live="polite">
+              <strong>Press any key to start</strong>
+            </div>
+          ) : timeUp ? (
+            <div className="overlay" aria-live="polite">
+              <strong>GAME OVER — press any key to restart</strong>
+            </div>
+          ) : (
+            <div className="passage">
+              {sourceChars.map((ch, i) => {
+                const typedCh = chars[i]
+                const isTyped = typedCh !== ''
+                const isCorrect = isTyped && typedCh === ch
+                const isCaret = i === cursor
+                const cls = [
+                  'char',
+                  isCaret ? 'caret' : '',
+                  isTyped ? (isCorrect ? 'typedCorrect' : 'typedWrong') : 'untouched',
+                  ch === ' ' ? 'space' : '',
+                ].filter(Boolean).join(' ')
+                return (
+                  <span key={i} className={cls} aria-hidden="true">
+                    {ch === ' ' ? '\u00A0' : ch}
+                  </span>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         <div className="footer">
